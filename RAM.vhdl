@@ -2,7 +2,7 @@
 -- **  PROYECTO PDUA                            **
 -- **  Modulo: 	RAM                           **
 -- **  Creacion:	Julio 07								**
--- **  Revisión:	Marzo 08								**
+-- **  Revisiï¿½n:	Marzo 08								**
 -- **  Por :		MGH-DIMENDEZ-CMUA-UNIANDES 	**
 -- ***********************************************
 -- Descripcion:
@@ -20,7 +20,8 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity RAM is
-    Port ( cs,rw	   : in std_logic;
+	Port ( cs,rw	   : in std_logic;
+			rst_n  : in 	std_logic;
            dir 	   : in std_logic_vector(2 downto 0);
            data_in 	: in std_logic_vector(7 downto 0);
 			  data_out 	: out std_logic_vector(7 downto 0));
@@ -34,7 +35,16 @@ signal mem: memoria;
 begin
 process(cs,rw,dir,data_in,mem)
 begin
-if cs = '1' then
+if rst_n='0' then
+	mem(7)<= "00001000";
+	mem(0)<= "00000001";
+	mem(1)<= "00000010";
+	mem(4)<= "00000011";
+	mem(3)<= "00000100";
+	mem(2)<= "00000101";
+	mem(5)<= "00000110";
+	mem(6)<= "00000111";
+elsif cs = '1' then
    if rw = '0' then  -- Read
        case dir is
 	    when "000" => data_out <= mem(0);

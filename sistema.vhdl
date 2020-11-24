@@ -57,6 +57,7 @@ end component;
 
 component RAM is
     Port ( cs,rw 	: in 	std_logic;
+            rst_n  : in 	std_logic;
            dir 	: in 	std_logic_vector(2 downto 0);
            data_in 	: in 	std_logic_vector(7 downto 0);
 			  data_out 	: out std_logic_vector(7 downto 0));
@@ -69,7 +70,7 @@ begin
 
 U1: pdua 	port map (clk,rst_n,int,iom,rwi,diri,datai,datao);
 U2: ROM  	port map (cs_ROM,rwi,diri(4 downto 0),datai);
-U3: RAM 	port map (cs_RAM,rwi,diri(2 downto 0),datao,datai);
+U3: RAM 	port map (cs_RAM,rwi,rst_n,diri(2 downto 0),datao,datai);
 
 bus_data_out <= datao;
 -- Decodificador
