@@ -32,7 +32,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity ctrl is
     Port ( clk 	: in std_logic;
-           rst_n 	: in std_logic;
+		   rst_n 	: in std_logic;
+		   solicita_dato_m : in std_logic;
 		     urst_n : in std_logic;
            HRI 	: in std_logic;
            INST 	: in std_logic_vector(4 downto 0);
@@ -71,8 +72,16 @@ begin
 	      uaddr(2 downto 0) <= (others => '0');
    	elsif load = '1' then
 	      uaddr(2 downto 0) <= DIR;
-      else
-	      uaddr(2 downto 0) <= uaddr(2 downto 0) + 1;
+	  else
+		
+	  if uaddr = "00100000" then
+		if solicita_dato_m = '0' then
+			uaddr(2 downto 0) <= uaddr(2 downto 0) + 1;
+		end if;
+	else
+		uaddr(2 downto 0) <= uaddr(2 downto 0) + 1;
+		end if;
+		  
 	end if;
    end if;
  end process;
@@ -94,8 +103,9 @@ begin
  MUI: process(uaddr)
  begin
    case uaddr is
-   -- HF BUSB(3) SELOP(3) DESP(2) BUSC(3) HR MAR MBR RW IOM HRI RUPC COND(3) OFFS(3)  
-
+   -- HF BUSB(3) SELOP(3) DESP(2) BUSC(3) HR MAR MBR RW IOM HRI RUPC COND(3) OFFS(3) 
+   -- 0   001      000      00      XXX    0  1   0   0   0  0   1     110     100 
+   -- 0   000      000      00      XXX    0  1   0   0   1  0   1     000     XXX
    -- FETCH 							    
 	when "00000000" => UI <= "000100000XXX0100001110100"; -- JINT 100 (MAR=SP)
 	when "00000001" => UI <= "000000000XXX0100101000XXX"; -- MAR = PC,RD MREQ

@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity pdua is
     Port ( clk 			: in 	std_logic;
            rst_n 			: in 	std_logic;
+           solicita_dato_m   : in 	std_logic;
            int 			: in 	std_logic;
            iom 			: out std_logic;		-- IO=0,M=1
            rw 				: out std_logic;		-- R=0,W=1
@@ -44,6 +45,7 @@ architecture Behavioral of pdua is
 component ctrl is
     Port ( clk 	: in 	std_logic;
            rst_n 	: in 	std_logic;
+           solicita_dato_m   : in 	std_logic;
 		     urst_n : in 	std_logic;
            HRI 	: in 	std_logic;
            INST 	: in 	std_logic_vector(4 downto 0);
@@ -118,7 +120,7 @@ urst_n 	<= ui(6);					-- Reset de microcontador
 cond 		<= ui(5 downto 3); 		-- Condicion de salto
 dir 		<= ui(2 downto 0);		-- Micro-offset de salto
 
-u1: ctrl  port map (clk,rst_n,urst_n,hri,busc(7 downto 3),C,Z,N,P,int,cond,dir,ui);
+u1: ctrl  port map (clk,rst_n, solicita_dato_m, urst_n,hri,busc(7 downto 3),C,Z,N,P,int,cond,dir,ui);
 u2: banco port map (clk, rst_n, hr, sc, sb, busc, busa, busb); 
 u3: alu 	 port map (clk,hf,busa, busb, func, desp, bus_alu, C, N, Z, P );
 u4: mar 	 port map (clk, bus_dir, busc, HMAR );

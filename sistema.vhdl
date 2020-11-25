@@ -41,6 +41,7 @@ architecture Behavioral of sistema is
 component pdua is
     Port ( clk 	: in 	std_logic;
            rst_n 	: in 	std_logic;
+           solicita_dato_m   : in 	std_logic;
            int 	: in 	std_logic;
            iom 	: out 	std_logic;
            rw 		: out 	std_logic;
@@ -56,21 +57,22 @@ component ROM is
 end component;
 
 component RAM is
-    Port ( cs,rw 	: in 	std_logic;
+    Port ( cs, rw, clk 	: in 	std_logic;
             rst_n  : in 	std_logic;
            dir 	: in 	std_logic_vector(2 downto 0);
            data_in 	: in 	std_logic_vector(7 downto 0);
+           solicita_dato : out std_logic;
 			  data_out 	: out std_logic_vector(7 downto 0));
 end component;
 
-signal rwi,cs_ROM,cs_RAM,iom	: std_logic;
+signal rwi,cs_ROM,cs_RAM,iom, mem_data_ready	: std_logic;
 signal datai,datao,diri		: std_logic_vector(7 downto 0);
 
 begin
 
-U1: pdua 	port map (clk,rst_n,int,iom,rwi,diri,datai,datao);
+U1: pdua 	port map (clk, rst_n, mem_data_ready, int,iom,rwi,diri,datai,datao);
 U2: ROM  	port map (cs_ROM,rwi,diri(4 downto 0),datai);
-U3: RAM 	port map (cs_RAM,rwi,rst_n,diri(2 downto 0),datao,datai);
+U3: RAM 	port map (cs_RAM, rwi, clk, rst_n, diri(2 downto 0), datao, mem_data_ready, datai);
 
 bus_data_out <= datao;
 -- Decodificador
