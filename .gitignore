@@ -4,3 +4,15 @@ work/
 *.wlf
 
 *.vstf
+
+*.qsf
+
+*.qpf
+
+*.txt
+
+incremental_db/
+
+output_files/
+
+db/

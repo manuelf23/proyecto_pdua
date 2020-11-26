@@ -113,7 +113,7 @@ elsif(clk'event and clk='1')then
 	end if;
 	if  solicita_dato_interna = '1' and cs='1' then
 		contador <=contador+1;
-		if (contador = 8) then
+		if (contador = 7) then
 			ram_clk<=1;
 			contador <= 1;
 			
