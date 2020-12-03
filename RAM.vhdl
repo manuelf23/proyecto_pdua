@@ -51,10 +51,8 @@ begin
 			--mem(6)<= "00000111";
 
 			integer i;
-			for (i = 0; i < 128; i = i + 1)
-			begin
+			for i in 0 to 127 generate 	
 				mem(i) <= std_logic_vector(unsigned(i+1, 8));
-			end
 
 
 		elsif cs = '1' then
