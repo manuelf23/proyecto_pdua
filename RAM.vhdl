@@ -34,6 +34,19 @@ architecture Behavioral of RAM is
 type memoria is array (127 downto 0) of std_logic_vector(7 downto 0);
 signal mem: memoria;
 
+type memoria_cache is array (31 downto 0) of std_logic_vector(7 downto 0);
+signal mem_cache: memoria_cache;
+
+type change_val is array (31 downto 0) of std_logic_vector(7 downto 0);
+signal c: change_val;
+
+type valid_block is array (7 downto 0) of std_logic_vector(7 downto 0);
+signal v: valid_block;
+
+type tag_block is array (7 downto 0) of std_logic_vector(7 downto 0);
+signal tag: tag_block;
+
+
 signal contador: integer:=1;
 signal solicita_dato_interna: std_logic:='0';
 signal ram_clk : integer:=1;
@@ -55,6 +68,9 @@ begin
 			--integer i;
 			for i in 0 to 127 loop
 				mem(i) <= std_logic_vector(to_unsigned(i+1, 8));
+			end loop;
+			for i in 0 to 31 loop
+    				mem_cache(i) <= "00000000";
 			end loop;
 			
 				
