@@ -16,8 +16,9 @@
 -- ***********************************************
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
+--use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity RAM is
 	Port ( cs, rw, clk	   : in std_logic;
@@ -36,6 +37,7 @@ signal mem: memoria;
 signal contador: integer:=1;
 signal solicita_dato_interna: std_logic:='0';
 signal ram_clk : integer:=1;
+signal vall : integer:=0;
 
 begin
 	process(cs,rw,dir,data_in,mem, ram_clk)
@@ -50,9 +52,12 @@ begin
 			--mem(5)<= "00000110";
 			--mem(6)<= "00000111";
 
-			integer i;
-			for i in 0 to 127 generate 	
-				mem(i) <= std_logic_vector(unsigned(i+1, 8));
+			--integer i;
+			for i in 0 to 127 loop
+				mem(i) <= std_logic_vector(to_unsigned(i+1, 8));
+			end loop;
+			
+				
 
 
 		elsif cs = '1' then
@@ -65,11 +70,9 @@ begin
 			--end if;
 						
 			if ram_clk = 1 then
-				if to_integer(unsigned(dir)) >= 0 or to_integer(unsigned(dir)) <= 127 then
-					data_out <= mem(to_integer(unsigned(dir)));
-				else
-					data_out <= (others => 'X'); 
-				end if;
+				vall <= to_integer(unsigned(dir)) mod 128;
+				data_out <= mem(vall);
+				
 				
 				--case dir is
 				--	when "000" => data_out <= mem(0);
@@ -93,12 +96,10 @@ begin
 			end if;
 			
 			
-		else 					-- Write
-			if to_integer(unsigned(dir)) >= 0 or to_integer(unsigned(dir)) <= 127 then
-				mem(to_integer(unsigned(dir))) <= Data_in;
-			else
-				mem(127) <= Data_in; 
-			end if;
+		else 		
+			vall <= to_integer(unsigned(dir)) mod 128;			-- Write
+			mem(vall) <= Data_in;
+			
 			--case dir is
 			--	when "000" => mem(0) <= Data_in;
 			--	when "001" => mem(1) <= Data_in;
