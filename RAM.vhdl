@@ -56,6 +56,7 @@ signal cache_ready: std_logic:='0';
 signal contador: integer:=1;
 signal contador_2: integer:=0;
 signal contador_actu: integer:=0;
+signal contador_ecr: integer:=0;
 
 signal copy_index_ram: integer:=0;
 signal copy_index_cache: integer:=0;
@@ -105,8 +106,9 @@ begin
 			end loop;
 		elsif cs = '1' then
 			contador_actu <= contador_actu + 1;
+			pos_v <= to_integer(unsigned(dir(4 downto 2)));	
 			if rw = '0' then  -- Read
-				pos_v <= to_integer(unsigned(dir(4 downto 2)));	
+				
 				if v(pos_v)='1' and solicita_dato_interna = '1' and actualizar_cache = '0' then
 					if tag(to_integer(unsigned(dir(4 downto 2)))) = dir(6 downto 5) then
 						data_out <= mem_cache(to_integer(unsigned(dir(4 downto 0))));
@@ -138,18 +140,19 @@ begin
 					elsif nuevoD_cache = '1' then
 						contador_2 <= contador_2 + 1;
 						
+						if tag(valid_index) /= dir(6 downto 5) then
+							mem_cache(0 + copy_index_cache) <= mem(0 + copy_index_ram);
+							mem_cache(1 + copy_index_cache) <= mem(1 + copy_index_ram);
+							mem_cache(2 + copy_index_cache) <= mem(2 + copy_index_ram);
+							mem_cache(3 + copy_index_cache) <= mem(3 + copy_index_ram);
 
-						mem_cache(0 + copy_index_cache) <= mem(0 + copy_index_ram);
-						mem_cache(1 + copy_index_cache) <= mem(1 + copy_index_ram);
-						mem_cache(2 + copy_index_cache) <= mem(2 + copy_index_ram);
-						mem_cache(3 + copy_index_cache) <= mem(3 + copy_index_ram);
-
-						--for i in 0 to 3 loop
-						--	mem_cache(i + copy_index_cache) <= mem(i + copy_index_ram);
-						--end loop;
-						tag(valid_index) <= dir(6 downto 5);
-						v(valid_index) <= '1';
-						nuevoD_cache <= '0';
+							--for i in 0 to 3 loop
+							--	mem_cache(i + copy_index_cache) <= mem(i + copy_index_ram);
+							--end loop;
+							tag(valid_index) <= dir(6 downto 5);
+							v(valid_index) <= '1';
+							nuevoD_cache <= '0';
+						end if;
 
 					end if;
 					flag <= 2;
@@ -170,7 +173,50 @@ begin
 				end if;
 			else 		
 				vall <= to_integer(unsigned(dir)) mod 128;			-- Write
-				mem(vall) <= Data_in;
+				
+				if v(pos_v)='1' then
+					
+					if tag(pos_v) = dir(6 downto 5) then
+						
+						mem_cache(to_integer(unsigned(dir(4 downto 0)))) <= Data_in;
+						c(to_integer(unsigned(dir(4 downto 0)))) <= '1';
+					else
+						
+						for i in 0 to 3 loop
+							
+							if c(i + copy_index_cache) = '1' then
+								if contador_ecr = 0 then
+									--contador_ecr <= contador_ecr +1;
+									contador_ecr <= 1;
+								else
+									contador_ecr <= 0;
+									
+								end if;
+								mem(i + save_index_ram) <= mem_cache(i + copy_index_cache);
+								c(i + copy_index_cache) <= '0';
+							end if;
+						end loop;
+						for i in 0 to 3 loop
+							mem_cache(i + valid_index) <= mem(i + copy_index_ram);
+						end loop;
+
+						tag(pos_v) <= dir(6 downto 5);
+						mem_cache(to_integer(unsigned(dir(4 downto 0)))) <= Data_in;
+						
+					end if ;
+				else
+					
+					for i in 0 to 3 loop
+						mem_cache(i + valid_index) <= mem(i + copy_index_ram);
+					end loop;
+
+					tag(pos_v) <= dir(6 downto 5);
+					v(pos_v) <= '1';
+					mem_cache(to_integer(unsigned(dir(4 downto 0)))) <= Data_in;
+
+				end if;
+
+				--mem(vall) <= Data_in;
 			end if;
 		else 
 			data_out <= (others => 'Z');
