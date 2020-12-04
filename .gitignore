@@ -16,3 +16,9 @@ incremental_db/
 output_files/
 
 db/
+
+*.ini
+
+*.do
+
+*.opt
