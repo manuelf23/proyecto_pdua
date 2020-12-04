@@ -45,9 +45,12 @@ if cs = '1' and rd = '0' then
 		when "01001" => data <= "00100000";  -- 6. MOV ACC, [DPTR] 
 		when "01010" => data <= "10001000";   -- 5. AUM DPTR // DPTR = DPTR + 1
 		when "01011" => data <= "00100000";  -- 6. MOV ACC, [DPTR] 
-		--when "01100" => data <= "10001000";   -- 5. AUM DPTR // DPTR = DPTR + 1
-		when "01100" => data <= "01010000";  -- 7. JUM DIR 
-		when "01101" => data <= "00001010";  -- 8. DIR= INIT_DPTR
+		when "01100" => data <= "00011000";  -- 1. (INIT_DPTR): MOV ACC,CTE
+		when "01101" => data <= "10100001";  -- 2. CTE (0x80) // 160
+		when "01110" => data <= "00101000";  -- 3. MOV DPTR, ACC // 
+		when "01111" => data <= "00100000";  -- 4. MOV ACC, [DPTR]
+		when "10000" => data <= "01010000";  -- 7. JUM DIR 
+		when "10001" => data <= "00001100";  -- 8. DIR= INIT_DPTR 00 001 000
 	    	
 		 when others => data <= (others => 'X'); 
        end case;

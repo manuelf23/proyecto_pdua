@@ -55,6 +55,7 @@ signal cache_ready: std_logic:='0';
 
 signal contador: integer:=1;
 signal contador_2: integer:=0;
+signal contador_actu: integer:=0;
 
 signal copy_index_ram: integer:=0;
 signal copy_index_cache: integer:=0;
@@ -86,13 +87,9 @@ begin
 						20 when dir(4 downto 2) = "101" else
 						24 when dir(4 downto 2) = "110" else
 						28 when dir(4 downto 2) = "111";
-
-
-
-	
 	copy_index_ram <= to_integer(unsigned((dir srl 2)sll 2 ));
 	save_index_ram <= to_integer(unsigned( tag(valid_index)(1 downto 0))   & unsigned(dir(4 downto 2)) & cost);
-	process(cs,rw,dir,data_in,mem, ram_clk, mem_cache)
+	process(cs,rw,dir,data_in,mem, ram_clk, mem_cache, clk)
 	begin
 		if rst_n='0' then
 			for i in 0 to 127 loop
@@ -107,9 +104,10 @@ begin
 					v(i) <= '0';
 			end loop;
 		elsif cs = '1' then
+			contador_actu <= contador_actu + 1;
 			if rw = '0' then  -- Read
 				pos_v <= to_integer(unsigned(dir(4 downto 2)));	
-				if v(pos_v)='1' and solicita_dato_interna = '1' then
+				if v(pos_v)='1' and solicita_dato_interna = '1' and actualizar_cache = '0' then
 					if tag(to_integer(unsigned(dir(4 downto 2)))) = dir(6 downto 5) then
 						data_out <= mem_cache(to_integer(unsigned(dir(4 downto 0))));
 						flag <= 1;
@@ -117,18 +115,15 @@ begin
 						solicita_dato_interna <= '0';
 					else
 						actualizar_cache <= '1';
+						contador_actu <= contador_actu + 1;
 					end if;	
 				elsif ram_clk = 1 then
-
-					
 					nuevoD_cache <= '1';
+					
 					vall <= to_integer(unsigned(dir)) mod 128;
 					dir_aux <= dir;
 					if actualizar_cache = '1'then
-						--valid_index <= to_integer(unsigned(dir(4 downto 2))); 
-						--copy_index_ram <= to_integer(unsigned(dir sll 2 ));
-						--copy_index_cache <= to_integer(unsigned(dir(4 downto 2) sll 2));
-						--save_index_ram <= to_integer(unsigned( tag(valid_index)(1 downto 0))   & unsigned(dir(4 downto 2)) & cost    );
+				
 						for i in 0 to 3 loop
 							if c(i + copy_index_cache) = '1' then
 								mem(i + save_index_ram) <= mem_cache(i + copy_index_cache);
